@@ -11,6 +11,11 @@ class dataManager {
     await this.getUserData();
   }
 
+  initFromLocalStorage(localStorageObject) {
+    this.ILCityNamesCodes = localStorageObject.ILCityNamesCodes;
+    this.allUsersData = localStorageObject.allUsersData;
+    this.citiesWeather = localStorageObject.citiesWeather;
+  }
   async initWeather() {
     await this.getAllWeather();
   }
@@ -64,7 +69,7 @@ class dataManager {
     this.allUsersData = fullData;
   }
   removeUser(id) {
-    const userIndex = this.allUsersData.findIndex((x) => x.id === id);
+    const userIndex = this.allUsersData.findIndex((x) => x.id === parseInt(id));
     if (userIndex === -1) throw 'remove user - user not found';
     this.allUsersData.splice(userIndex, 1);
   }
@@ -108,7 +113,6 @@ class makeTable {
       this.removeAllData();
     }
     this.table.insertAdjacentHTML('beforeend', `<tbody></tbody>`);
-
     this.data.allUsersData.sort((user1, user2) => {
       if (user1[attribute] > user2[attribute]) {
         return 1;
@@ -137,6 +141,18 @@ class makeTable {
     this.table
       .querySelector('tbody')
       .insertAdjacentHTML('beforeend', innerHTML);
+
+    const currentCityWeather = this.data.citiesWeather.find(
+      (x) => x.name === user.city
+    );
+    if (typeof currentCityWeather !== 'undefined') {
+      const weatherDiv = `<div class = "weatherDiv">city:${currentCityWeather.name}\ntemperature: ${currentCityWeather.weather.temp}\nweather: ${currentCityWeather.weather.weather}</div>`;
+
+      const cityTD = this.table
+        .querySelector('tbody')
+        .lastElementChild.querySelector('td:nth-child(6)');
+      cityTD.insertAdjacentHTML('beforeend', weatherDiv);
+    }
   }
   setEventListeners() {
     const searchBox = document.querySelector('#searchBox');
@@ -159,13 +175,14 @@ class makeTable {
     this.setRowsOnDOM(attribute);
   }
   static editHandler(event) {
-    if (event.target.innerText != 'edit') return;
+    if (event.target.innerText != 'edit' || event.target.nodeName != 'BUTTON')
+      return;
     const currentRow = event.target.parentElement.parentElement;
     const currentUser = this.data.allUsersData.find(
       (x) => x.id === parseInt(currentRow.firstElementChild.innerText)
     );
     const savedInerHTML = currentRow.innerHTML;
-    currentRow.innerHTML = `<tr><td>${currentUser.id}</td><td><input type="text" id="fname" value="${currentUser.firstName}"></td><td><input type="text" id="lname" value="${currentUser.lastName}"></td><td>$<input type="text" id="capsule" value="${currentUser.capsule}"></td><td><input type="text" id="age" value="${currentUser.age}"></td><td><input type="text" id="city" value="${currentUser.city}"></td><td><input type="text" id="gender" value="${currentUser.gender}"></td><td><input type="text" id="hobby" value="${currentUser.hobby}"></td><td><button class = "first cancel">cancel</button></td><td><button class = "second confirm">confirm</button></td></tr>`;
+    currentRow.innerHTML = `<tr><td>${currentUser.id}</td><td><input type="text" id="fname" value="${currentUser.firstName}"></td><td><input type="text" id="lname" value="${currentUser.lastName}"></td><td><input type="number" id="capsule" value="${currentUser.capsule}"></td><td><input type="number" id="age" value="${currentUser.age}"></td><td><input type="text" id="city" value="${currentUser.city}"></td><td><input type="text" id="gender" value="${currentUser.gender}"></td><td><input type="text" id="hobby" value="${currentUser.hobby}"></td><td><button class = "first cancel">cancel</button></td><td><button class = "second confirm">confirm</button></td></tr>`;
     const cancelButton = currentRow.querySelector('.cancel');
     const confirmButton = currentRow.querySelector('.confirm');
     //binding the previous innerHtml to revert to.
@@ -176,10 +193,14 @@ class makeTable {
     confirmButton.addEventListener('click', updateValuesBind, { once: true });
   }
   static revert(event) {
-    const row = event.target.parentElement;
+    if (event.target.nodeName != 'BUTTON') return;
+    event.stopPropagation();
+    const row = event.target.parentElement.parentElement;
     row.innerHTML = this;
   }
   static updateValues(event) {
+    if (event.target.nodeName != 'BUTTON') return;
+    event.stopPropagation();
     const currentRow = event.target.parentElement.parentElement;
     const currentUser = this.data.allUsersData.find(
       (x) => x.id === parseInt(currentRow.firstElementChild.innerText)
@@ -198,7 +219,8 @@ class makeTable {
     this.setRowsOnDOM();
   }
   static deleteRow(event) {
-    if (event.target.innerText != 'delete') return;
+    if (event.target.innerText != 'delete' || event.target.nodeName != 'BUTTON')
+      return;
     const currentRow = event.target.parentElement.parentElement;
     //get the id:
     this.data.removeUser(currentRow.firstElementChild.innerText);
@@ -217,7 +239,9 @@ async function go() {
       localStorage.setItem('all data', JSON.stringify(localData));
     } else {
       localData = JSON.parse(localData);
-      Object.setPrototypeOf(localData, dataManager);
+      const temp = new dataManager();
+      temp.initFromLocalStorage(localData);
+      localData = temp;
     }
     const usersTable = new makeTable(localData);
     usersTable.init();
@@ -237,7 +261,6 @@ left to do:
 at 4am wednesday: left to do : prevent unwanted behaviour from the table click events.
 at 5:44am: remaining - delete function - when parsing json object back from local storage, it doesn't retrieve back the class functions too. I need to write a function to convert it back. maybe using lodash.
 - also - make weather div show on hover.
-- also - change wrong event listeners behaviour.
 */
 function toWeirdCase(str) {
   return str

@@ -44,3 +44,24 @@ input{
   width:max-content;
   max-width: 5vw;
 }
+
+.weatherDiv{
+  display: none;
+  position: absolute;
+  padding: 2vh;
+  background:rgb(229, 241, 237);
+  white-space:pre-wrap;
+  right: -8vw;
+  top: 2vw;
+  height:max-content;
+  width: max-content;
+
+
+  z-index: 9999;
+}
+td:nth-child(6){
+  position:relative;
+}
+td:nth-child(6):hover > .weatherDiv{
+  display: block;
+}
