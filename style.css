@@ -4,8 +4,8 @@
   margin: 0;
 }
 body{
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255,0.2)),url(./img/background.jpg) no-repeat;
-  background-size: cover;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255,0.2)),url(./img/background.jpg);
+  background-size: auto;
 
 }
 
@@ -39,4 +39,8 @@ body{
 
 .users-table tbody tr:last-of-type {
   border-bottom: thin solid #009879;
+}
+input{
+  width:max-content;
+  max-width: 5vw;
 }
