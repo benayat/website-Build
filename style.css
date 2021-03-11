@@ -1,0 +1,42 @@
+:root{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+body{
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255,0.2)),url(./img/background.jpg) no-repeat;
+  background-size: cover;
+
+}
+
+.users-table{
+    border-collapse: collapse;
+    margin: 3vw 0;
+    font-size: 1vw;
+    font-family: sans-serif;
+    min-width: 450px;
+    width: max-content;
+    box-shadow: 0 0 1vw rgba(0, 0, 0, 0.15);
+}
+
+.users-table thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: left;
+}
+
+.users-table th,
+.users-table td {
+    padding: 1rem 1rem;
+}
+.users-table tbody tr {
+  border-bottom: thin solid #dddddd;
+}
+
+.users-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.users-table tbody tr:last-of-type {
+  border-bottom: thin solid #009879;
+}
