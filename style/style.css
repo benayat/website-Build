@@ -4,7 +4,7 @@
   margin: 0;
 }
 body{
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255,0.2)),url(./img/background.jpg);
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255,0.2)),url(../img/background.jpg);
   background-size: auto;
 
 }
@@ -15,7 +15,7 @@ body{
     font-size: 1vw;
     font-family: sans-serif;
     min-width: 450px;
-    width: max-content;
+    width: 75vw;
     box-shadow: 0 0 1vw rgba(0, 0, 0, 0.15);
 }
 
@@ -66,15 +66,38 @@ td:nth-child(6):hover > .weatherDiv{
   display: block;
 }
 .loader{
-  background:url(./img/images.jfif) no-repeat;
-  height: 15vw;
-  width: 20vw;
+  background:url(../img/coffee.jpg) no-repeat;
+  background-size: contain;
+  height: 5vw;
+  width: 5vw;
   position: absolute;
-  right: 1vw;
-  top: 10vw;
+  right: 6vw;
   animation: 2s rotate3d infinite ease-in-out;
 }
-.dissapear{
+.l1{
+  top: 3vw;
+
+}
+.l2{
+ top: 18vw;
+}
+.l3{
+  top:33vw;
+}
+.l4{
+  top: 48vw;
+}
+.l5{
+  top: 63vw;
+}
+.l6{
+  top: 78vw;
+}
+.l7{
+  top: 93vw;
+}
+
+.disappear{
   display: none;
 }
 @keyframes rotate3d{

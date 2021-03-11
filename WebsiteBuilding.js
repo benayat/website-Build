@@ -179,8 +179,8 @@ class makeTable {
   //I found the specific TD tag I wanted with the nth-child(n) selector.
   //*I'll stop the loder here. on the remove function I'll reload it again.
   addTableRow(user) {
-    const loader = document.querySelector('.loader');
-    loader.classList.add('dissapear');
+    const loaders = document.querySelectorAll('.loader');
+    loaders.forEach((element) => element.classList.add('disappear'));
     const innerHTML = `<tr><td>${user.id}</td><td>${user.firstName}</td><td>${user.lastName}</td><td>${user.capsule}</td><td>${user.age}</td><td>${user.city}</td><td>${user.gender}</td><td>${user.hobby}</td><td><button class = "first edit">edit</button></td><td><button class = "second delete">delete</button></td></tr> `;
     this.table
       .querySelector('tbody')
@@ -224,10 +224,12 @@ class makeTable {
   }
   //this time, I made sure that only the correct button runs the handler code.
   static editHandler(event) {
-    document.querySelector('.loader').classList.remove('dissapear');
-
     if (event.target.innerText != 'edit' || event.target.nodeName != 'BUTTON')
       return;
+
+    document
+      .querySelectorAll('.loader')
+      .forEach((element) => element.classList.remove('disappear'));
     const currentRow = event.target.parentElement.parentElement;
     const currentUser = this.data.allUsersData.find(
       (x) => x.id === parseInt(currentRow.firstElementChild.innerText)
@@ -245,18 +247,21 @@ class makeTable {
   }
   //revert function - chainging back to what it was.
   static revert(event) {
-    document.querySelector('.loader').classList.add('dissapear');
-
     if (event.target.nodeName != 'BUTTON') return;
+    document
+      .querySelectorAll('.loader')
+      .forEach((element) => element.classList.add('disappear'));
+
     event.stopPropagation();
     const row = event.target.parentElement.parentElement;
     row.innerHTML = this;
   }
 
   static updateValues(event) {
-    document.querySelector('.loader').classList.add('dissapear');
-
     if (event.target.nodeName != 'BUTTON') return;
+    document
+      .querySelectorAll('.loader')
+      .forEach((element) => element.classList.add('disappear'));
     event.stopPropagation();
     const currentRow = event.target.parentElement.parentElement;
     const currentUser = this.data.allUsersData.find(
