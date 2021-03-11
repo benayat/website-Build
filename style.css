@@ -65,3 +65,21 @@ td:nth-child(6){
 td:nth-child(6):hover > .weatherDiv{
   display: block;
 }
+.loader{
+  background:url(./img/images.jfif) no-repeat;
+  height: 15vw;
+  width: 20vw;
+  position: absolute;
+  right: 1vw;
+  top: 10vw;
+  animation: 2s rotate3d infinite ease-in-out;
+}
+.dissapear{
+  display: none;
+}
+@keyframes rotate3d{
+  100%{transform:rotateX(360deg) rotateY(180deg);}
+}
+input[type="number"]{
+  width: 3vw;
+}
