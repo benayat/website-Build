@@ -1,16 +1,33 @@
+/* 
+documentation: I'll do my best here to explain all the functionality of my work.
+*/
+//one time function - I used a regex and array methods to match the attribute format to that of the database - it eliminstes spaces, and lowercasing first words.
+function toWeirdCase(str) {
+  return str
+    .split(/-|_| /)
+    .map((word, index, array) => (array[0] == word ? word.toLowerCase() : word))
+    .join('');
+}
+
 class dataManager {
+  //I only entered static values here. async\api calls happen in the init.
   constructor() {
     this.weatherKey = `906063fe9f05a947b2d73946da6d0da0`;
     this.weatherURLStart = `http://api.openweathermap.org/data/2.5/weather?id=`;
     this.allUsersShort = 'https://apple-seeds.herokuapp.com/api/users/';
     this.specificUserStartURL = this.allUsersShort;
   }
+  //call all the async function and fill our database: getCityCodes to coordinate between the city code\names api and the weather api.
+  //getAllWeather: get and massage all the data from the weather api.
+  //getUserData: getting all the data from the users\classmates api.
   async init() {
     await this.getCityCodes();
     await this.getAllWeather();
     await this.getUserData();
   }
-
+  /* 
+  when I tries to store a class instance on the localStorage, it apparently didn't store the functions as well. so I had to re-initialize a new object with the datasets from the old instance.
+  */
   initFromLocalStorage(localStorageObject) {
     this.ILCityNamesCodes = localStorageObject.ILCityNamesCodes;
     this.allUsersData = localStorageObject.allUsersData;
@@ -23,6 +40,7 @@ class dataManager {
     const rawILCityNamesCodes = await fetch('./ilCityList.json');
     this.ILCityNamesCodes = await rawILCityNamesCodes.json();
   }
+  //getting the weather data from api. I noticed it was in kalvin units, and there was a string to specify metric units - "&units=metric"
   async getweather(cityCode) {
     const response = await fetch(
       this.weatherURLStart +
@@ -47,6 +65,10 @@ class dataManager {
       })
     );
   }
+  /* 
+  getting the main data. I was stuck here at first - because map doesn't work normaly with async and await, so I just wrapped it with Promise.all(), and it did all the calculations simultaneously and returned the desired values instead of promises.
+  - there was a descrepancy between the city naming in the weather api and the users api, so I hard coded the changes, so the hovering would work.
+  */
   async getUserData() {
     const responseAll = await fetch(this.allUsersShort);
     const data = await responseAll.json();
@@ -54,6 +76,22 @@ class dataManager {
       data.map(async (user) => {
         let responseUser = await fetch(this.specificUserStartURL + user.id);
         let userData = await responseUser.json();
+        switch (userData.city) {
+          case 'Tirat Ha Carmel':
+            userData.city = 'Tirat Karmel';
+            break;
+          case 'Rehovot':
+            userData.city = 'Reẖovot';
+            break;
+          case 'Beer Sheva':
+            userData.city = 'Beersheba';
+            break;
+          case 'Umm El Fahem':
+            userData.city = 'Umm el Faḥm';
+            break;
+          default:
+            break;
+        }
         return {
           id: user.id,
           firstName: user.firstName,
@@ -68,21 +106,20 @@ class dataManager {
     );
     this.allUsersData = fullData;
   }
+  //remove a user - using the splice method.
   removeUser(id) {
     const userIndex = this.allUsersData.findIndex((x) => x.id === parseInt(id));
     if (userIndex === -1) throw 'remove user - user not found';
     this.allUsersData.splice(userIndex, 1);
   }
+  //every time a user changes somthing in the table, I want to update the weather data.
+  //* unlike the users, the weather data is dynamic and ever-changing, so updating it is necessary. for readability purposes I created another function just for that.(even though they do the same action).
   updateDatabaseFromApi() {
     this.initWeather();
   }
 }
 /* 
 actions needed:
-
-*/
-
-/* 
 data reminder: data=>allUsersData=>
           id: user.id,
           firstName: user.firstName,
@@ -94,20 +131,22 @@ data reminder: data=>allUsersData=>
           hobby: userData.hobby,
 
 */
+//in the constructor - I added the simple data.
 class makeTable {
   constructor(data) {
     this.data = data;
     this.table = document.querySelector('.users-table');
   }
+  //I used init for the more complicated data.
   init() {
     this.setRowsOnDOM();
     this.setEventListeners();
   }
+  //removing the table body, to update and re-insert the values.
   removeAllData() {
     this.table.removeChild(this.table.getElementsByTagName('tbody')[0]);
   }
-  // *check sorting behaviour - does it recognize the attribute parameter? did the binding worked?
-  //change sorting function for alphabetical comparison vs numberical.
+  //I had to write a sorting function which can sort both numeric and string values.
   setRowsOnDOM(attribute = 'id') {
     if (this.table.querySelector('tbody')) {
       this.removeAllData();
@@ -126,16 +165,18 @@ class makeTable {
       this.addTableRow(user);
     }
   }
+  //implementation of the search action. filtering the table according to a specific attribure and string.
   setFilteredRowsOnDOM(attribute, filterString) {
     this.removeAllData();
     this.table.insertAdjacentHTML('beforeend', `<tbody></tbody>`);
-
     const filter = (user) =>
       new RegExp(`^${filterString}`, 'i').test(user[attribute]);
     for (const user of this.data.allUsersData.filter(filter)) {
       this.addTableRow(user);
     }
   }
+  // adding a row, using HTML. plus, I added a silent div for weather - and in the css I activated it on hover.
+  //I found the specific TD tag I wanted with the nth-child(n) selector.
   addTableRow(user) {
     const innerHTML = `<tr><td>${user.id}</td><td>${user.firstName}</td><td>${user.lastName}</td><td>${user.capsule}</td><td>${user.age}</td><td>${user.city}</td><td>${user.gender}</td><td>${user.hobby}</td><td><button class = "first edit">edit</button></td><td><button class = "second delete">delete</button></td></tr> `;
     this.table
@@ -154,6 +195,9 @@ class makeTable {
       cityTD.insertAdjacentHTML('beforeend', weatherDiv);
     }
   }
+  //setting the event listeners.
+  //I wanted to make the event listeners dynamic, because the buttons are always re-created, so I attached the event listener to the table itself(when possible), and used event capturing to propagate it down to the buttons.
+  //I used bind in order to use this(or another parameter as this) in the static event listeners.
   setEventListeners() {
     const searchBox = document.querySelector('#searchBox');
 
@@ -169,11 +213,13 @@ class makeTable {
     this.table.addEventListener('click', editHandlerBind);
     this.table.addEventListener('click', deleteRowBind);
   }
+  //the handler only work when the target is not a th.
   static sortHandler(event) {
     if (event.target.tagName != 'TH') return;
     const attribute = toWeirdCase(event.target.innerText);
     this.setRowsOnDOM(attribute);
   }
+  //this time, I made sure that only the correct button runs the handler code.
   static editHandler(event) {
     if (event.target.innerText != 'edit' || event.target.nodeName != 'BUTTON')
       return;
@@ -192,12 +238,14 @@ class makeTable {
     cancelButton.addEventListener('click', revertBind, { once: true });
     confirmButton.addEventListener('click', updateValuesBind, { once: true });
   }
+  //revert function - chainging back to what it was.
   static revert(event) {
     if (event.target.nodeName != 'BUTTON') return;
     event.stopPropagation();
     const row = event.target.parentElement.parentElement;
     row.innerHTML = this;
   }
+
   static updateValues(event) {
     if (event.target.nodeName != 'BUTTON') return;
     event.stopPropagation();
@@ -230,6 +278,9 @@ class makeTable {
   }
 }
 
+/* 
+here was one of my biggest challenges. I wanted to use the local storage, since there are plenty of api calls, and it could take time, and waste expensive calls we can use(for example, in the weather api I only have 60 calls per minute!). but this gave me a worse challenge: local storage doesn't support class instances. so I had to create a new function to store and rehydrate the instance again. 
+*/
 async function go() {
   try {
     let localData = localStorage.getItem('all data');
@@ -250,21 +301,3 @@ async function go() {
   }
 }
 go();
-
-/* 
-left to do: 
-- set event listeners: on the table head for sorting.
-* I assume that there is no need to redo event listeners for the dynamically created elements. I'll check it tommorow.
-*/
-
-/* 
-at 4am wednesday: left to do : prevent unwanted behaviour from the table click events.
-at 5:44am: remaining - delete function - when parsing json object back from local storage, it doesn't retrieve back the class functions too. I need to write a function to convert it back. maybe using lodash.
-- also - make weather div show on hover.
-*/
-function toWeirdCase(str) {
-  return str
-    .split(/-|_| /)
-    .map((word, index, array) => (array[0] == word ? word.toLowerCase() : word))
-    .join('');
-}
