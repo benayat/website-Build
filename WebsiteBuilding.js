@@ -12,7 +12,7 @@ function toWeirdCase(str) {
 class dataManager {
   //I only entered static values here. async\api calls happen in the init.
   constructor() {
-    this.weatherKey = `906063fe9f05a947b2d73946da6d0da0`;
+    this.weatherKey = `0719a819fbaed262c1664e9259c5f488`;
     this.weatherURLStart = `http://api.openweathermap.org/data/2.5/weather?id=`;
     this.allUsersShort = 'https://apple-seeds.herokuapp.com/api/users/';
     this.specificUserStartURL = this.allUsersShort;
