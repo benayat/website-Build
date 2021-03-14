@@ -8,6 +8,18 @@ function toWeirdCase(str) {
     .map((word, index, array) => (array[0] == word ? word.toLowerCase() : word))
     .join('');
 }
+function setLoader() {
+  document
+    .querySelectorAll('.loader')
+    .forEach((element) => element.classList.add('disappear'));
+  const loaderDiv = document.createElement('div');
+  loaderDiv.classList.add('loader-background');
+  document.body.insertAdjacentElement('beforeend', loaderDiv);
+}
+function removeLoader() {
+  const loader = document.querySelector('.loader-background');
+  loader.parentElement.removeChild(loader);
+}
 
 class dataManager {
   //I only entered static values here. async\api calls happen in the init.
@@ -295,8 +307,10 @@ class makeTable {
 /* 
 here was one of my biggest challenges. I wanted to use the local storage, since there are plenty of api calls, and it could take time, and waste expensive calls we can use(for example, in the weather api I only have 60 calls per minute!). but this gave me a worse challenge: local storage doesn't support class instances. so I had to create a new function to store and rehydrate the instance again. 
 */
+
 async function go() {
   try {
+    setLoader();
     let localData = localStorage.getItem('all data');
     if (!localData) {
       localData = new dataManager();
@@ -308,6 +322,7 @@ async function go() {
       temp.initFromLocalStorage(localData);
       localData = temp;
     }
+    removeLoader();
     const usersTable = new makeTable(localData);
     usersTable.init();
   } catch (error) {

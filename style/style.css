@@ -100,9 +100,20 @@ td:nth-child(6):hover > .weatherDiv{
 .disappear{
   display: none;
 }
+
+input[type="number"]{
+  width: 3vw;
+}
+.loader-background{
+  background: url(../img/zoom.png) no-repeat center;
+  background-size: cover;
+  height: 50vh;
+  width: 50vw;
+  animation: 2s loader infinite linear;
+}
 @keyframes rotate3d{
   100%{transform:rotateX(360deg) rotateY(180deg);}
 }
-input[type="number"]{
-  width: 3vw;
+@keyframes loader{
+  100%{transform: scale(1.5) rotate(360deg);}
 }
